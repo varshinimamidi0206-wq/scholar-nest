@@ -1,0 +1,135 @@
+import { scholarshipsTable, db } from "@workspace/db";
+
+const demoScholarships = [
+  {
+    name: "ScholarNest Access Award",
+    provider: "ScholarNest Demo Program",
+    description:
+      "Demo listing for students who need financial support to continue higher education. Confirm all requirements with the official provider before applying.",
+    amount: 25000,
+    courseEligibility: ["All Courses"],
+    minimumCgpa: 6,
+    maximumIncome: 400000,
+    eligibleStates: ["All India"],
+    eligibleCategories: ["All categories"],
+    genderRequirement: null,
+    ageMinimum: 17,
+    ageMaximum: 30,
+    requiredDocuments: [
+      "Income Certificate",
+      "Marks Memo",
+      "Bonafide Certificate",
+    ],
+    deadline: "2026-11-30",
+    officialUrl: null,
+    applicationMethod: "Demo listing — official application details not verified",
+    verified: false,
+    demoData: true,
+  },
+  {
+    name: "Future in Technology Bursary",
+    provider: "ScholarNest Demo Program",
+    description:
+      "Demo listing for students studying engineering, computer science, or information technology.",
+    amount: 40000,
+    courseEligibility: ["Engineering", "Computer Science", "Information Technology"],
+    minimumCgpa: 7,
+    maximumIncome: 600000,
+    eligibleStates: ["All India"],
+    eligibleCategories: ["All categories"],
+    genderRequirement: null,
+    ageMinimum: 17,
+    ageMaximum: 28,
+    requiredDocuments: [
+      "Income Certificate",
+      "Marks Memo",
+      "Bonafide Certificate",
+    ],
+    deadline: "2026-12-15",
+    officialUrl: null,
+    applicationMethod: "Demo listing — official application details not verified",
+    verified: false,
+    demoData: true,
+  },
+  {
+    name: "Women in STEM Study Grant",
+    provider: "ScholarNest Demo Program",
+    description:
+      "Demo listing for women studying science, technology, engineering, or mathematics.",
+    amount: 50000,
+    courseEligibility: ["Science", "Engineering", "Technology", "Mathematics"],
+    minimumCgpa: 7.5,
+    maximumIncome: 800000,
+    eligibleStates: ["All India"],
+    eligibleCategories: ["All categories"],
+    genderRequirement: "Female",
+    ageMinimum: 17,
+    ageMaximum: 30,
+    requiredDocuments: [
+      "Income Certificate",
+      "Marks Memo",
+      "Bonafide Certificate",
+    ],
+    deadline: "2027-01-31",
+    officialUrl: null,
+    applicationMethod: "Demo listing — official application details not verified",
+    verified: false,
+    demoData: true,
+  },
+  {
+    name: "Andhra Pradesh Learning Support Award",
+    provider: "ScholarNest Demo Program",
+    description:
+      "Demo listing for eligible students enrolled in an Andhra Pradesh institution.",
+    amount: 30000,
+    courseEligibility: ["All Courses"],
+    minimumCgpa: 6.5,
+    maximumIncome: 500000,
+    eligibleStates: ["Andhra Pradesh"],
+    eligibleCategories: ["General", "OBC", "SC", "ST", "EWS"],
+    genderRequirement: null,
+    ageMinimum: 16,
+    ageMaximum: 29,
+    requiredDocuments: [
+      "Income Certificate",
+      "Marks Memo",
+      "Bonafide Certificate",
+      "Identity Document",
+    ],
+    deadline: "2027-02-28",
+    officialUrl: null,
+    applicationMethod: "Demo listing — official application details not verified",
+    verified: false,
+    demoData: true,
+  },
+  {
+    name: "First Generation Graduate Grant",
+    provider: "ScholarNest Demo Program",
+    description:
+      "Demo listing for students who are the first in their immediate family to attend college.",
+    amount: 35000,
+    courseEligibility: ["All Courses"],
+    minimumCgpa: null,
+    maximumIncome: 350000,
+    eligibleStates: ["All India"],
+    eligibleCategories: ["All categories"],
+    genderRequirement: null,
+    ageMinimum: 17,
+    ageMaximum: 32,
+    requiredDocuments: ["Income Certificate", "Bonafide Certificate"],
+    deadline: "2027-03-31",
+    officialUrl: null,
+    applicationMethod: "Demo listing — official application details not verified",
+    verified: false,
+    demoData: true,
+  },
+];
+
+export async function seedDemoScholarships(): Promise<void> {
+  await db
+    .insert(scholarshipsTable)
+    .values(demoScholarships)
+    .onConflictDoNothing({
+      target: [scholarshipsTable.name, scholarshipsTable.provider],
+    });
+}

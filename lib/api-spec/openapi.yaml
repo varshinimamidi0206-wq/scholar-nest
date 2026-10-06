@@ -1,15 +1,34 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: ScholarNest scholarship discovery and student workflow API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Student authentication
+  - name: students
+    description: Student profile
+  - name: scholarships
+    description: Scholarship discovery and matching
+  - name: dashboard
+    description: Personalized student overview
+  - name: saved
+    description: Saved scholarships
+  - name: applications
+    description: Application tracking
+  - name: documents
+    description: Private student documents
+  - name: notifications
+    description: Student notifications
+  - name: ai
+    description: Optional AI guidance
+security:
+  - bearerAuth: []
 paths:
   /healthz:
     get:
@@ -24,7 +43,512 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /health:
+    get:
+      operationId: apiHealth
+      tags: [health]
+      summary: Compatibility health endpoint
+      security: []
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a student
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSession"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Sign in
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSession"
+        "401":
+          $ref: "#/components/responses/Error"
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Revoke the current session
+      responses:
+        "204":
+          description: Session revoked
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get the current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /students/profile:
+    get:
+      operationId: getStudentProfile
+      tags: [students]
+      summary: Get the current student's profile
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+    put:
+      operationId: updateStudentProfile
+      tags: [students]
+      summary: Create or update the current student's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentProfileInput"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+  /scholarships:
+    get:
+      operationId: listScholarships
+      tags: [scholarships]
+      summary: Search and filter scholarships
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: state
+          schema: { type: string }
+        - in: query
+          name: course
+          schema: { type: string }
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: maxIncome
+          schema: { type: number }
+        - in: query
+          name: minCgpa
+          schema: { type: number }
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [best-match, deadline, amount, recent]
+      responses:
+        "200":
+          description: Scholarship records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScholarshipMatch"
+    post:
+      operationId: createScholarship
+      tags: [scholarships]
+      summary: Create a scholarship (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScholarshipInput"
+      responses:
+        "201":
+          description: Created scholarship
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scholarship"
+  /scholarships/matches:
+    get:
+      operationId: getScholarshipMatches
+      tags: [scholarships]
+      summary: Get deterministic matches for the current student's profile
+      responses:
+        "200":
+          description: Ranked scholarship matches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScholarshipMatch"
+  /scholarships/{id}:
+    get:
+      operationId: getScholarship
+      tags: [scholarships]
+      summary: Get a scholarship and the current student's match
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Scholarship with match breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScholarshipMatch"
+        "404":
+          $ref: "#/components/responses/Error"
+    patch:
+      operationId: updateScholarship
+      tags: [scholarships]
+      summary: Update a scholarship (admin only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScholarshipInput"
+      responses:
+        "200":
+          description: Updated scholarship
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scholarship"
+    delete:
+      operationId: deleteScholarship
+      tags: [scholarships]
+      summary: Delete a scholarship (admin only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Scholarship deleted
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get current student dashboard data
+      responses:
+        "200":
+          description: Personalized dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+  /saved:
+    get:
+      operationId: listSavedScholarships
+      tags: [saved]
+      summary: List saved scholarships
+      responses:
+        "200":
+          description: Saved scholarship matches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScholarshipMatch"
+    post:
+      operationId: saveScholarship
+      tags: [saved]
+      summary: Save a scholarship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveScholarshipInput"
+      responses:
+        "201":
+          description: Saved scholarship
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScholarshipMatch"
+  /saved/{scholarshipId}:
+    delete:
+      operationId: removeSavedScholarship
+      tags: [saved]
+      summary: Remove a saved scholarship
+      parameters:
+        - in: path
+          name: scholarshipId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Scholarship removed
+  /applications:
+    get:
+      operationId: listApplications
+      tags: [applications]
+      summary: List the current student's applications
+      responses:
+        "200":
+          description: Applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+    post:
+      operationId: createApplication
+      tags: [applications]
+      summary: Start tracking a scholarship application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationInput"
+      responses:
+        "201":
+          description: Created application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+  /applications/{id}:
+    patch:
+      operationId: updateApplication
+      tags: [applications]
+      summary: Update application status and notes
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationUpdate"
+      responses:
+        "200":
+          description: Updated application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+    delete:
+      operationId: deleteApplication
+      tags: [applications]
+      summary: Delete an application
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Application deleted
+  /documents:
+    get:
+      operationId: listDocuments
+      tags: [documents]
+      summary: List the current student's documents
+      responses:
+        "200":
+          description: Student documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentDocument"
+    post:
+      operationId: createDocument
+      tags: [documents]
+      summary: Record an uploaded document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentInput"
+      responses:
+        "201":
+          description: Document recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDocument"
+  /documents/upload-url:
+    post:
+      operationId: requestDocumentUpload
+      tags: [documents]
+      summary: Get a signed URL for a private document upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentUploadInput"
+      responses:
+        "200":
+          description: Signed upload instructions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentUploadUrl"
+  /documents/{id}:
+    delete:
+      operationId: deleteDocument
+      tags: [documents]
+      summary: Delete a private document
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Document deleted
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List notifications
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark a notification as read
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Notification marked read
+  /ai/eligibility-explanation:
+    post:
+      operationId: explainEligibility
+      tags: [ai]
+      summary: Explain a deterministic scholarship match
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScholarshipReferenceInput"
+      responses:
+        "200":
+          description: Plain-language explanation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiExplanation"
+  /ai/assistant:
+    post:
+      operationId: askNestGuide
+      tags: [ai]
+      summary: Ask NestGuide a scholarship question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssistantInput"
+      responses:
+        "200":
+          description: Contextual answer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistantResponse"
+  /ai/document-analysis:
+    post:
+      operationId: analyzeDocument
+      tags: [ai]
+      summary: Request AI-assisted analysis of an uploaded document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/DocumentReferenceInput"
+      responses:
+        "200":
+          description: AI-assisted extraction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentAnalysis"
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Error:
+      description: Request failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +557,275 @@ components:
           type: string
       required:
         - status
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+      required: [error]
+    User:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [student, admin] }
+      required: [id, name, email, role]
+    AuthSession:
+      type: object
+      properties:
+        token: { type: string }
+        user: { $ref: "#/components/schemas/User" }
+      required: [token, user]
+    RegisterInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8, maxLength: 128 }
+      required: [name, email, password]
+    LoginInput:
+      type: object
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 1, maxLength: 128 }
+      required: [email, password]
+    StudentProfileInput:
+      type: object
+      properties:
+        fullName: { type: string, maxLength: 120 }
+        age: { type: ["integer", "null"], minimum: 13, maximum: 100 }
+        state: { type: string, maxLength: 100 }
+        district: { type: string, maxLength: 100 }
+        course: { type: string, maxLength: 120 }
+        branch: { type: string, maxLength: 120 }
+        year: { type: string, maxLength: 50 }
+        collegeName: { type: string, maxLength: 200 }
+        collegeType: { type: string, maxLength: 80 }
+        cgpa: { type: ["number", "null"], minimum: 0, maximum: 10 }
+        percentage: { type: ["number", "null"], minimum: 0, maximum: 100 }
+        annualFamilyIncome: { type: ["number", "null"], minimum: 0 }
+        category: { type: string, maxLength: 80 }
+        gender: { type: string, maxLength: 80 }
+        disabilityStatus: { type: boolean }
+        minorityStatus: { type: boolean }
+        ruralUrban: { type: string, enum: ["", rural, urban] }
+        previousScholarship: { type: boolean }
+        achievements: { type: string, maxLength: 2000 }
+      required: [fullName, age, state, district, course, branch, year, collegeName, collegeType, cgpa, percentage, annualFamilyIncome, category, gender, disabilityStatus, minorityStatus, ruralUrban, previousScholarship, achievements]
+    StudentProfile:
+      allOf:
+        - $ref: "#/components/schemas/StudentProfileInput"
+        - type: object
+          properties:
+            id: { type: string, format: uuid }
+            userId: { type: string, format: uuid }
+            profileCompletion: { type: integer, minimum: 0, maximum: 100 }
+            updatedAt: { type: string, format: date-time }
+          required: [id, userId, profileCompletion, updatedAt]
+    Scholarship:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        provider: { type: string }
+        description: { type: string }
+        amount: { type: number }
+        courseEligibility: { type: array, items: { type: string } }
+        minimumCgpa: { type: ["number", "null"] }
+        maximumIncome: { type: ["number", "null"] }
+        eligibleStates: { type: array, items: { type: string } }
+        eligibleCategories: { type: array, items: { type: string } }
+        genderRequirement: { type: ["string", "null"] }
+        ageMinimum: { type: ["integer", "null"] }
+        ageMaximum: { type: ["integer", "null"] }
+        requiredDocuments: { type: array, items: { type: string } }
+        deadline: { type: ["string", "null"], format: date }
+        officialUrl: { type: ["string", "null"], format: uri }
+        applicationMethod: { type: string }
+        verified: { type: boolean }
+        demoData: { type: boolean }
+        createdAt: { type: string, format: date-time }
+      required: [id, name, provider, description, amount, courseEligibility, minimumCgpa, maximumIncome, eligibleStates, eligibleCategories, genderRequirement, ageMinimum, ageMaximum, requiredDocuments, deadline, officialUrl, applicationMethod, verified, demoData, createdAt]
+    ScholarshipInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        provider: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, minLength: 1, maxLength: 3000 }
+        amount: { type: number, minimum: 0 }
+        courseEligibility: { type: array, items: { type: string } }
+        minimumCgpa: { type: ["number", "null"], minimum: 0, maximum: 10 }
+        maximumIncome: { type: ["number", "null"], minimum: 0 }
+        eligibleStates: { type: array, items: { type: string } }
+        eligibleCategories: { type: array, items: { type: string } }
+        genderRequirement: { type: ["string", "null"] }
+        ageMinimum: { type: ["integer", "null"] }
+        ageMaximum: { type: ["integer", "null"] }
+        requiredDocuments: { type: array, items: { type: string } }
+        deadline: { type: ["string", "null"], format: date }
+        officialUrl: { type: ["string", "null"], format: uri }
+        applicationMethod: { type: string }
+        verified: { type: boolean }
+        demoData: { type: boolean }
+      required: [name, provider, description, amount, courseEligibility, minimumCgpa, maximumIncome, eligibleStates, eligibleCategories, genderRequirement, ageMinimum, ageMaximum, requiredDocuments, deadline, officialUrl, applicationMethod, verified, demoData]
+    MatchBreakdown:
+      type: object
+      properties:
+        academic: { type: integer, minimum: 0, maximum: 25 }
+        income: { type: integer, minimum: 0, maximum: 20 }
+        course: { type: integer, minimum: 0, maximum: 20 }
+        location: { type: integer, minimum: 0, maximum: 15 }
+        category: { type: integer, minimum: 0, maximum: 10 }
+        other: { type: integer, minimum: 0, maximum: 10 }
+      required: [academic, income, course, location, category, other]
+    ScholarshipMatch:
+      allOf:
+        - $ref: "#/components/schemas/Scholarship"
+        - type: object
+          properties:
+            matchScore: { type: integer, minimum: 0, maximum: 100 }
+            eligible: { type: boolean }
+            matchLabel: { type: string, enum: ["Strong Match", "Good Match", "Possible Match", "Not Eligible"] }
+            breakdown: { $ref: "#/components/schemas/MatchBreakdown" }
+            matchedRequirements: { type: array, items: { type: string } }
+            missingRequirements: { type: array, items: { type: string } }
+          required: [matchScore, eligible, matchLabel, breakdown, matchedRequirements, missingRequirements]
+    SaveScholarshipInput:
+      type: object
+      properties:
+        scholarshipId: { type: string, format: uuid }
+      required: [scholarshipId]
+    ApplicationInput:
+      type: object
+      properties:
+        scholarshipId: { type: string, format: uuid }
+        status: { type: string, enum: [SAVED, INTERESTED, DOCUMENTS_PREPARING, READY_TO_APPLY, APPLIED, UNDER_REVIEW, SELECTED, REJECTED] }
+        notes: { type: string, maxLength: 4000 }
+      required: [scholarshipId]
+    ApplicationUpdate:
+      type: object
+      properties:
+        status: { type: string, enum: [SAVED, INTERESTED, DOCUMENTS_PREPARING, READY_TO_APPLY, APPLIED, UNDER_REVIEW, SELECTED, REJECTED] }
+        notes: { type: string, maxLength: 4000 }
+    Application:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        scholarshipId: { type: string, format: uuid }
+        scholarshipName: { type: string }
+        provider: { type: string }
+        deadline: { type: ["string", "null"], format: date }
+        status: { type: string, enum: [SAVED, INTERESTED, DOCUMENTS_PREPARING, READY_TO_APPLY, APPLIED, UNDER_REVIEW, SELECTED, REJECTED] }
+        notes: { type: string }
+        appliedAt: { type: ["string", "null"], format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, scholarshipId, scholarshipName, provider, deadline, status, notes, appliedAt, updatedAt]
+    DocumentUploadInput:
+      type: object
+      properties:
+        fileName: { type: string, minLength: 1, maxLength: 255 }
+        contentType: { type: string }
+      required: [fileName, contentType]
+    DocumentUploadUrl:
+      type: object
+      properties:
+        bucket: { type: string }
+        path: { type: string }
+        token: { type: string }
+      required: [bucket, path, token]
+    DocumentInput:
+      type: object
+      properties:
+        fileName: { type: string, minLength: 1, maxLength: 255 }
+        documentType: { type: string, enum: ["Income Certificate", "Caste/Category Certificate", "Marks Memo", "Bonafide Certificate", "Identity Document", "Disability Certificate", "Bank Document", "Other"] }
+        storagePath: { type: string, minLength: 1 }
+      required: [fileName, documentType, storagePath]
+    StudentDocument:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        fileName: { type: string }
+        documentType: { type: string }
+        status: { type: string, enum: [Uploaded, Processing, Ready, "Needs Review"] }
+        uploadedAt: { type: string, format: date-time }
+        storagePath: { type: string }
+      required: [id, fileName, documentType, status, uploadedAt, storagePath]
+    Notification:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        message: { type: string }
+        type: { type: string }
+        read: { type: boolean }
+        createdAt: { type: string, format: date-time }
+      required: [id, title, message, type, read, createdAt]
+    DashboardStats:
+      type: object
+      properties:
+        profileCompletion: { type: integer }
+        scholarshipsFound: { type: integer }
+        strongMatches: { type: integer }
+        saved: { type: integer }
+        applications: { type: integer }
+        deadlinesThisWeek: { type: integer }
+        documentsReady: { type: integer }
+      required: [profileCompletion, scholarshipsFound, strongMatches, saved, applications, deadlinesThisWeek, documentsReady]
+    Dashboard:
+      type: object
+      properties:
+        user: { $ref: "#/components/schemas/User" }
+        stats: { $ref: "#/components/schemas/DashboardStats" }
+        bestMatches:
+          type: array
+          items: { $ref: "#/components/schemas/ScholarshipMatch" }
+        applications:
+          type: array
+          items: { $ref: "#/components/schemas/Application" }
+        deadlines:
+          type: array
+          items: { $ref: "#/components/schemas/ScholarshipMatch" }
+      required: [user, stats, bestMatches, applications, deadlines]
+    ScholarshipReferenceInput:
+      type: object
+      properties:
+        scholarshipId: { type: string, format: uuid }
+      required: [scholarshipId]
+    DocumentReferenceInput:
+      type: object
+      properties:
+        documentId: { type: string, format: uuid }
+      required: [documentId]
+    AiExplanation:
+      type: object
+      properties:
+        eligible: { type: boolean }
+        matchSummary: { type: string }
+        reasons: { type: array, items: { type: string } }
+        missingRequirements: { type: array, items: { type: string } }
+        nextSteps: { type: array, items: { type: string } }
+      required: [eligible, matchSummary, reasons, missingRequirements, nextSteps]
+    AssistantInput:
+      type: object
+      properties:
+        question: { type: string, minLength: 1, maxLength: 2000 }
+        language: { type: string, enum: [English, Telugu, Hindi] }
+      required: [question, language]
+    AssistantResponse:
+      type: object
+      properties:
+        answer: { type: string }
+      required: [answer]
+    DocumentAnalysis:
+      type: object
+      properties:
+        documentType: { type: string }
+        studentName: { type: ["string", "null"] }
+        annualIncome: { type: ["number", "null"] }
+        institution: { type: ["string", "null"] }
+        academicYear: { type: ["string", "null"] }
+        issueDate: { type: ["string", "null"] }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+        possibleIssues: { type: array, items: { type: string } }
+      required: [documentType, studentName, annualIncome, institution, academicYear, issueDate, confidence, possibleIssues]
 
