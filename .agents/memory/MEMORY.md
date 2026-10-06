@@ -1,0 +1,1 @@
+- [Supabase database connectivity](supabase-db-connectivity.md) — use the IPv4 Session Pooler; the direct database host is IPv6-only and unreachable in this Replit runtime.
