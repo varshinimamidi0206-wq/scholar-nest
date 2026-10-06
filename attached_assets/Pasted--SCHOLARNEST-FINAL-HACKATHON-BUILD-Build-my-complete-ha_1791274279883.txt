@@ -1,0 +1,1878 @@
+# SCHOLARNEST — FINAL HACKATHON BUILD
+
+Build my complete hackathon project called:
+
+# ScholarNest
+
+### Your Path to the Right Scholarship
+
+Problem Statement:
+
+**E6 — Scholarship Discovery Platform**
+
+Requirement:
+
+Create a system that recommends scholarships to students based on academic performance, income category, course, location, and eligibility.
+
+This must be a serious, polished, production-style full-stack hackathon project — NOT a simple scholarship listing website.
+
+The core product idea is:
+
+> **ScholarNest helps students discover scholarships they are eligible for, understand why they qualify, prepare the required documents, and track their applications from discovery to submission.**
+
+The product should feel like a real startup product that could be used by students across India.
+
+---
+
+# 1. CRITICAL RULES
+
+Follow these rules throughout development.
+
+### DO
+
+* Build a real working full-stack application.
+* Use a real PostgreSQL database.
+* Use real authentication.
+* Use bcrypt for password hashing.
+* Use JWT authentication.
+* Protect private API routes.
+* Implement real CRUD.
+* Persist user data.
+* Implement user-level data isolation.
+* Validate backend inputs using Zod.
+* Use proper HTTP status codes.
+* Use centralized error handling.
+* Use Gemini only from the backend.
+* Keep API keys in environment variables.
+* Use structured JSON for Gemini responses.
+* Make the application responsive.
+* Create loading, error, empty, and success states.
+* Make the application deployment-ready.
+* Keep code clean and modular.
+* Reuse existing working code if it already exists.
+
+### DO NOT
+
+* Do not create a fake frontend with hardcoded dashboard data.
+* Do not use fake authentication.
+* Do not store passwords in plain text.
+* Do not expose Gemini API keys.
+* Do not expose Supabase service-role keys.
+* Do not put secrets in GitHub.
+* Do not use Gemini for deterministic scholarship filtering.
+* Do not generate fake scholarship statistics.
+* Do not fabricate official scholarship URLs.
+* Do not claim AI legally verifies government documents.
+* Do not repeatedly regenerate the entire application.
+* Do not delete working functionality unnecessarily.
+* Do not install unnecessary packages.
+* Do not create unnecessary animations.
+* Do not make the project just a chatbot.
+
+The scholarship matching workflow must remain the heart of the product.
+
+---
+
+# 2. BRANDING
+
+Application name:
+
+**ScholarNest**
+
+Tagline:
+
+**Your Path to the Right Scholarship**
+
+AI assistant:
+
+**NestGuide**
+
+Primary CTA:
+
+**Find My Scholarships**
+
+Brand style:
+
+* modern
+* trustworthy
+* academic
+* student-friendly
+* professional
+* clean
+* premium
+* hopeful
+
+Use a light interface.
+
+Primary visual direction:
+
+* navy
+* blue
+* white
+* subtle supporting colors
+
+Avoid:
+
+* excessive gradients
+* excessive glassmorphism
+* childish design
+* orange-heavy design
+* excessive animations
+* clutter
+* random stock images
+
+Use the ScholarNest logo if it is available in the project.
+
+Preferred logo asset:
+
+`/public/assets/scholarnest-logo.png`
+
+---
+
+# 3. TECHNOLOGY STACK
+
+## Frontend
+
+* React
+* Vite
+* React Router
+* Tailwind CSS
+* Lucide React
+* Axios or Fetch
+
+## Backend
+
+* Node.js
+* Express.js
+* bcrypt
+* JWT
+* Zod
+
+## Database
+
+**Supabase PostgreSQL**
+
+Use the existing Supabase project.
+
+Supabase project URL:
+
+`https://gufbigkfdhfysvcnbrpm.supabase.co`
+
+The Supabase publishable key is already provided through Replit Secrets.
+
+DO NOT hardcode the key.
+
+## AI
+
+Google Gemini API.
+
+Gemini must only be called from the backend.
+
+## Storage
+
+Use Supabase Storage for uploaded documents.
+
+## Deployment
+
+Frontend:
+
+Vercel-compatible
+
+Backend:
+
+Render-compatible
+
+---
+
+# 4. ENVIRONMENT VARIABLES
+
+Use Replit Secrets / environment variables.
+
+Backend:
+
+```env
+NODE_ENV=development
+PORT=5000
+FRONTEND_URL=http://localhost:5173
+
+SUPABASE_URL=https://gufbigkfdhfysvcnbrpm.supabase.co
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+GEMINI_API_KEY=
+GEMINI_MODEL=
+
+JWT_SECRET=
+```
+
+Frontend:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000
+VITE_SUPABASE_URL=https://gufbigkfdhfysvcnbrpm.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=
+```
+
+IMPORTANT:
+
+The publishable Supabase key may be used where appropriate for frontend/public Supabase operations.
+
+NEVER expose:
+
+* SUPABASE_SERVICE_ROLE_KEY
+* GEMINI_API_KEY
+* JWT_SECRET
+
+to the frontend.
+
+Never commit `.env` files.
+
+Create `.env.example` files without real secrets.
+
+---
+
+# 5. ARCHITECTURE
+
+Use:
+
+```text
+                    STUDENT
+                       |
+                       v
+              React + Vite Frontend
+                       |
+                       v
+                    REST API
+                       |
+                       v
+              Node.js + Express
+                 /           \
+                /             \
+               v               v
+       Supabase PostgreSQL   Gemini API
+               |
+               v
+       Supabase Storage
+```
+
+Frontend should never directly call Gemini.
+
+---
+
+# 6. PROJECT STRUCTURE
+
+Use this structure or improve the existing structure without breaking working code:
+
+```text
+scholarnest/
+│
+├── frontend/
+│   ├── public/
+│   │   └── assets/
+│   │       └── scholarnest-logo.png
+│   │
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── layouts/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   ├── data/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   │
+│   ├── package.json
+│   ├── vite.config.js
+│   └── vercel.json
+│
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── middleware/
+│   │   ├── utils/
+│   │   └── server.js
+│   │
+│   ├── package.json
+│   └── .env.example
+│
+├── database/
+│   └── schema.sql
+│
+├── README.md
+├── ARCHITECTURE.md
+├── AI_INTEGRATION.md
+├── DEPLOYMENT_GUIDE.md
+└── .gitignore
+```
+
+If the Replit project already has a different structure, inspect it first and adapt it instead of unnecessarily rebuilding it.
+
+---
+
+# 7. DATABASE
+
+Create a proper PostgreSQL schema.
+
+## users
+
+```text
+id
+name
+email
+password_hash
+created_at
+updated_at
+```
+
+## students
+
+```text
+id
+user_id
+full_name
+age
+state
+district
+course
+branch
+year
+college_name
+college_type
+cgpa
+percentage
+annual_family_income
+category
+gender
+disability_status
+minority_status
+rural_urban
+previous_scholarship
+achievements
+profile_completion
+created_at
+updated_at
+```
+
+## scholarships
+
+```text
+id
+name
+provider
+description
+amount
+course_eligibility
+minimum_cgpa
+maximum_income
+eligible_states
+eligible_categories
+gender_requirement
+age_requirement
+required_documents
+deadline
+official_url
+application_method
+verified
+status
+created_at
+updated_at
+```
+
+## saved_scholarships
+
+```text
+id
+user_id
+scholarship_id
+created_at
+```
+
+## applications
+
+```text
+id
+user_id
+scholarship_id
+status
+notes
+applied_at
+created_at
+updated_at
+```
+
+Statuses:
+
+```text
+SAVED
+INTERESTED
+DOCUMENTS_PREPARING
+READY_TO_APPLY
+APPLIED
+UNDER_REVIEW
+SELECTED
+REJECTED
+```
+
+## documents
+
+```text
+id
+user_id
+document_type
+file_name
+file_url
+extracted_data
+verification_status
+uploaded_at
+updated_at
+```
+
+## notifications
+
+```text
+id
+user_id
+title
+message
+type
+read
+scheduled_for
+created_at
+```
+
+## ai_outputs
+
+```text
+id
+user_id
+scholarship_id
+type
+input_hash
+output_json
+created_at
+```
+
+Use foreign keys, indexes, timestamps, and appropriate constraints.
+
+Users must never be able to access another user's private records.
+
+---
+
+# 8. AUTHENTICATION
+
+Implement real authentication.
+
+Pages:
+
+* Register
+* Login
+* Logout
+
+Registration:
+
+* name
+* email
+* password
+* confirm password
+
+Use:
+
+**bcrypt**
+
+for password hashing.
+
+Use:
+
+**JWT**
+
+for authentication.
+
+Backend middleware should verify JWT.
+
+Protected routes should require authentication.
+
+Implement:
+
+```text
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+```
+
+Never return password hashes.
+
+Handle:
+
+* duplicate email
+* invalid credentials
+* invalid input
+* expired/invalid token
+* unauthorized requests
+
+---
+
+# 9. MAIN NAVIGATION
+
+After login:
+
+```text
+Dashboard
+My Profile
+Find Scholarships
+Recommended
+Saved
+Applications
+Documents
+Deadlines
+Compare
+NestGuide
+```
+
+Header:
+
+* ScholarNest logo
+* navigation
+* notifications
+* profile menu
+* logout
+
+Mobile navigation must be responsive.
+
+---
+
+# 10. LANDING PAGE
+
+Create a professional landing page.
+
+Hero:
+
+# Your Path to the Right Scholarship
+
+Text:
+
+"Find scholarships that match your academics, income, course, location, and eligibility — all in one place."
+
+Buttons:
+
+**Find My Scholarships**
+
+**Explore Scholarships**
+
+Show:
+
+### Personalized Matching
+
+Find scholarships based on your profile.
+
+### Eligibility Clarity
+
+Understand why you qualify.
+
+### Document Guidance
+
+Know exactly what you need.
+
+### Deadline Tracking
+
+Never lose track of important dates.
+
+### Application Tracking
+
+Track every scholarship in one place.
+
+Workflow:
+
+```text
+Build Profile
+      ↓
+Find Matches
+      ↓
+Prepare Documents
+      ↓
+Apply
+      ↓
+Track
+```
+
+Do not display fake statistics.
+
+---
+
+# 11. STUDENT PROFILE
+
+Create a complete profile page.
+
+Sections:
+
+### Personal
+
+* Name
+* Age
+* State
+* District
+
+### Academic
+
+* Course
+* Branch
+* Year
+* College
+* College type
+* CGPA
+* Percentage
+
+### Financial
+
+* Annual family income
+
+### Eligibility
+
+* Category
+* Gender
+* Disability status
+* Minority status
+* Rural/Urban
+
+### Additional
+
+* Previous scholarship
+* Achievements
+
+Show:
+
+**Profile Completion**
+
+with a real percentage calculated from actual fields.
+
+Allow:
+
+* create
+* read
+* update
+
+Persist everything in PostgreSQL.
+
+---
+
+# 12. SCHOLARSHIP DATA
+
+Create a useful demonstration dataset.
+
+Include scholarships with different:
+
+* courses
+* income limits
+* CGPA requirements
+* states
+* categories
+* deadlines
+* amounts
+* document requirements
+
+Every scholarship should contain:
+
+* name
+* provider
+* description
+* amount
+* deadline
+* course eligibility
+* minimum CGPA
+* maximum income
+* state eligibility
+* category eligibility
+* required documents
+* official application URL
+* verified status
+
+IMPORTANT:
+
+Do not invent official URLs.
+
+If a real official URL is unavailable, clearly mark the record as demo/sample data.
+
+---
+
+# 13. SCHOLARSHIP CRUD
+
+Implement backend CRUD.
+
+Admins/system data should be able to:
+
+* create scholarship
+* read scholarship
+* update scholarship
+* delete scholarship
+
+Students should be able to:
+
+* view scholarships
+* search
+* filter
+* save
+* compare
+* apply/track
+
+Use proper authorization.
+
+---
+
+# 14. SCHOLARSHIP SEARCH
+
+Create:
+
+# Find Scholarships
+
+Search:
+
+* scholarship name
+* provider
+* course
+* state
+
+Filters:
+
+* income
+* CGPA
+* category
+* gender
+* state
+* course
+* deadline
+* amount
+
+Sorting:
+
+* Best Match
+* Deadline Soon
+* Highest Amount
+* Recently Added
+
+Filtering should be handled efficiently through backend/database queries.
+
+---
+
+# 15. ELIGIBILITY ENGINE
+
+This is one of the most important features.
+
+Create a deterministic backend matching engine.
+
+DO NOT use Gemini for basic eligibility calculation.
+
+Score:
+
+### Academic
+
+25 points
+
+### Income
+
+20 points
+
+### Course
+
+20 points
+
+### Location
+
+15 points
+
+### Category
+
+10 points
+
+### Other Requirements
+
+10 points
+
+Total:
+
+**100 points**
+
+Example:
+
+```text
+Academic       25/25
+Income         20/20
+Course         20/20
+Location       15/15
+Category       10/10
+Other           4/10
+--------------------
+Match Score    94%
+```
+
+Return structured data:
+
+```json
+{
+  "matchScore": 94,
+  "eligible": true,
+  "breakdown": {
+    "academic": 25,
+    "income": 20,
+    "course": 20,
+    "location": 15,
+    "category": 10,
+    "other": 4
+  },
+  "matchedRequirements": [],
+  "missingRequirements": []
+}
+```
+
+The score must be generated from actual profile and scholarship data.
+
+Never hardcode 94%.
+
+---
+
+# 16. RECOMMENDED SCHOLARSHIPS
+
+Create:
+
+# Recommended
+
+Rank scholarships according to the deterministic eligibility engine.
+
+Each card should show:
+
+* Scholarship
+* Provider
+* Amount
+* Deadline
+* Match score
+* Eligibility
+* Documents
+* Save
+* View Details
+
+Use labels:
+
+* Strong Match
+* Good Match
+* Possible Match
+* Not Eligible
+
+---
+
+# 17. SCHOLARSHIP DETAILS
+
+Create a detailed scholarship page.
+
+Show:
+
+* scholarship name
+* provider
+* amount
+* deadline
+* description
+* requirements
+* match score
+* score breakdown
+* matched requirements
+* missing requirements
+* required documents
+* application process
+* official URL
+* verified status
+
+Buttons:
+
+**Why am I eligible?**
+
+**Save Scholarship**
+
+**Compare**
+
+**Start Application**
+
+---
+
+# 18. GEMINI AI
+
+Use Gemini only from backend.
+
+Routes:
+
+```text
+POST /api/ai/eligibility-explanation
+POST /api/ai/assistant
+POST /api/ai/document-analysis
+POST /api/ai/scholarship-summary
+```
+
+Gemini must NOT decide the core eligibility score.
+
+The deterministic engine decides eligibility.
+
+Gemini explains it.
+
+This is important for reliability and credit efficiency.
+
+---
+
+# 19. STRUCTURED GEMINI RESPONSE
+
+Use structured JSON.
+
+Example:
+
+```json
+{
+  "eligible": true,
+  "matchSummary": "You meet the major eligibility requirements.",
+  "reasons": [
+    "Your CGPA meets the academic requirement.",
+    "Your family income is within the scholarship limit.",
+    "Your course is eligible."
+  ],
+  "missingRequirements": [],
+  "nextSteps": [
+    "Prepare your income certificate.",
+    "Verify your latest academic document.",
+    "Apply through the official scholarship portal."
+  ]
+}
+```
+
+Validate the response using Zod.
+
+If Gemini returns invalid data:
+
+* catch the error
+* do not crash the server
+* provide a safe fallback
+
+Cache repeated AI outputs using the `ai_outputs` table where appropriate.
+
+---
+
+# 20. "WHY AM I ELIGIBLE?"
+
+Add:
+
+**Why am I eligible?**
+
+Flow:
+
+```text
+Student
+ ↓
+Scholarship
+ ↓
+Deterministic Match Engine
+ ↓
+Backend
+ ↓
+Gemini
+ ↓
+Structured Explanation
+ ↓
+Student
+```
+
+Send Gemini:
+
+* relevant student profile information
+* scholarship requirements
+* deterministic match result
+
+Gemini should explain:
+
+* why they qualify
+* matched requirements
+* missing requirements
+* next steps
+
+Gemini must never silently override the deterministic result.
+
+---
+
+# 21. NESTGUIDE
+
+Create:
+
+# NestGuide
+
+Subtitle:
+
+**Your scholarship application companion.**
+
+Example questions:
+
+* Which scholarships are best for me?
+* Why am I not eligible?
+* What documents do I need?
+* Which deadline should I prioritize?
+* Explain this scholarship simply.
+* Explain this in Telugu.
+* Explain this in Hindi.
+* What should I do next?
+
+The backend should provide relevant context.
+
+Do not send unnecessary private information to Gemini.
+
+Show disclaimer:
+
+"NestGuide provides guidance based on the information available in ScholarNest. Always verify eligibility and application details on the official scholarship portal."
+
+---
+
+# 22. MULTILINGUAL SUPPORT
+
+Support:
+
+* English
+* Telugu
+* Hindi
+
+Provide a language selector.
+
+NestGuide should be able to respond in the selected language.
+
+Do not unnecessarily translate official scholarship names.
+
+---
+
+# 23. DOCUMENT CENTER
+
+Create:
+
+# Documents
+
+Types:
+
+* Income Certificate
+* Caste/Category Certificate
+* Marks Memo
+* Bonafide Certificate
+* Identity Document
+* Disability Certificate
+* Bank Document
+* Other
+
+Use Supabase Storage.
+
+Show:
+
+* document
+* type
+* upload date
+* status
+* readiness
+
+Statuses:
+
+```text
+Missing
+Uploaded
+Processing
+Ready
+Needs Review
+```
+
+---
+
+# 24. DOCUMENT AI
+
+Allow users to upload a document.
+
+Backend can use Gemini for AI-assisted document analysis.
+
+Extract useful information such as:
+
+* document type
+* student name
+* income
+* institution
+* academic year
+* issue date
+
+Return structured JSON.
+
+Example:
+
+```json
+{
+  "documentType": "Income Certificate",
+  "studentName": "Example Student",
+  "annualIncome": 250000,
+  "issueDate": "2026-04-12",
+  "confidence": 0.94,
+  "possibleIssues": []
+}
+```
+
+IMPORTANT:
+
+This is only an **AI-assisted document check**.
+
+Never claim that ScholarNest officially verifies government documents.
+
+---
+
+# 25. DOCUMENT CHECKLIST
+
+For each scholarship show:
+
+### Required Documents
+
+Example:
+
+```text
+Income Certificate       ✓ Ready
+Marks Memo               ✓ Ready
+Bonafide Certificate     ✗ Missing
+```
+
+Show:
+
+**2/3 documents ready**
+
+Button:
+
+**Upload Missing Document**
+
+The checklist should be based on the actual scholarship record.
+
+---
+
+# 26. APPLICATION TRACKER
+
+Create:
+
+# Applications
+
+Use a Kanban/timeline workflow:
+
+```text
+Saved
+ ↓
+Interested
+ ↓
+Documents Preparing
+ ↓
+Ready to Apply
+ ↓
+Applied
+ ↓
+Under Review
+ ↓
+Selected / Rejected
+```
+
+Allow users to:
+
+* create application
+* update status
+* add notes
+* delete application
+
+Persist all changes.
+
+---
+
+# 27. DEADLINES
+
+Create:
+
+# Deadlines
+
+Show:
+
+* Due Today
+* Due This Week
+* Due This Month
+* Later
+
+Display:
+
+* scholarship
+* deadline
+* days remaining
+* application status
+
+Calculate deadline status dynamically.
+
+Do not hardcode "3 days left."
+
+---
+
+# 28. SAVED SCHOLARSHIPS
+
+Create:
+
+# Saved
+
+Users can:
+
+* save scholarship
+* remove scholarship
+* compare
+* start application
+
+All saved data must be user-specific.
+
+---
+
+# 29. SCHOLARSHIP COMPARISON
+
+Allow up to 3 scholarships.
+
+Compare:
+
+* Match Score
+* Amount
+* Deadline
+* Income Limit
+* CGPA Requirement
+* Course
+* Category
+* Location
+* Documents
+* Application method
+
+Create a clean comparison interface.
+
+---
+
+# 30. APPLICATION ROADMAP
+
+For each selected scholarship:
+
+# Your Application Roadmap
+
+Steps:
+
+1. Check eligibility
+2. Prepare documents
+3. Review requirements
+4. Apply through official portal
+5. Track application
+
+Show progress based on actual user data.
+
+---
+
+# 31. DASHBOARD
+
+Create a personalized dashboard.
+
+Greeting:
+
+**Welcome back, [Name]**
+
+Cards:
+
+```text
+Profile Completion
+Scholarships Found
+Strong Matches
+Saved
+Applications
+Deadlines This Week
+Documents Ready
+```
+
+All values must come from actual API/database data.
+
+Main sections:
+
+### Your Best Matches
+
+### Upcoming Deadlines
+
+### Application Progress
+
+### Document Readiness
+
+### Complete Your Profile
+
+---
+
+# 32. ANALYTICS
+
+Show useful personal analytics:
+
+* matched scholarships
+* saved scholarships
+* applications
+* completed applications
+* documents ready
+* upcoming deadlines
+
+Only create charts where they provide useful information.
+
+---
+
+# 33. API ROUTES
+
+Implement:
+
+```text
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/logout
+
+GET    /api/students/profile
+PUT    /api/students/profile
+
+GET    /api/scholarships
+GET    /api/scholarships/:id
+POST   /api/scholarships
+PUT    /api/scholarships/:id
+DELETE /api/scholarships/:id
+
+GET    /api/scholarships/matches
+
+GET    /api/saved
+POST   /api/saved
+DELETE /api/saved/:id
+
+GET    /api/applications
+POST   /api/applications
+PUT    /api/applications/:id
+DELETE /api/applications/:id
+
+GET    /api/documents
+POST   /api/documents
+DELETE /api/documents/:id
+
+GET    /api/notifications
+PUT    /api/notifications/:id/read
+
+POST   /api/ai/eligibility-explanation
+POST   /api/ai/assistant
+POST   /api/ai/document-analysis
+POST   /api/ai/scholarship-summary
+
+GET    /api/health
+```
+
+---
+
+# 34. SECURITY
+
+Implement:
+
+* bcrypt
+* JWT
+* authentication middleware
+* authorization
+* Zod validation
+* CORS
+* environment variables
+* centralized errors
+* secure database queries
+* user-level data isolation
+* safe file upload handling
+* no secrets in GitHub
+
+Never log:
+
+* passwords
+* JWT secrets
+* Gemini API keys
+* Supabase service-role keys
+
+---
+
+# 35. FRONTEND QUALITY
+
+Create reusable components:
+
+```text
+Navbar
+Sidebar
+MobileNavigation
+ScholarshipCard
+MatchScore
+EligibilityBreakdown
+ProfileForm
+DocumentCard
+DeadlineCard
+ApplicationCard
+StatusBadge
+EmptyState
+LoadingState
+ErrorState
+Modal
+Toast
+```
+
+Use consistent styling.
+
+Make every page responsive.
+
+---
+
+# 36. MOBILE EXPERIENCE
+
+The application must work properly on mobile.
+
+Ensure:
+
+* navigation works
+* cards stack
+* forms are readable
+* tables become responsive
+* buttons are touch-friendly
+* dashboard remains usable
+* no horizontal overflow
+
+---
+
+# 37. DEMO FLOW
+
+The entire hackathon demo should work smoothly:
+
+```text
+Register/Login
+      ↓
+Complete Profile
+      ↓
+Find My Scholarships
+      ↓
+Personalized Results
+      ↓
+94% Match Example
+      ↓
+Eligibility Breakdown
+      ↓
+Why am I eligible?
+      ↓
+Gemini Explanation
+      ↓
+Documents
+      ↓
+Upload Income Certificate
+      ↓
+AI-Assisted Document Check
+      ↓
+Document Readiness
+      ↓
+Application Tracker
+      ↓
+Deadline
+      ↓
+Applied
+      ↓
+Dashboard Updated
+```
+
+The actual match score must be calculated dynamically.
+
+---
+
+# 38. CREDIT-EFFICIENT AI
+
+Because AI/API credits are limited:
+
+DO NOT use Gemini for:
+
+* filtering
+* sorting
+* searching
+* match calculation
+* deadline calculation
+* dashboard statistics
+* application status
+* CRUD
+* authentication
+
+Use normal code/database logic for these.
+
+Use Gemini only for:
+
+* eligibility explanation
+* NestGuide
+* document analysis
+* scholarship summaries
+* multilingual explanations
+
+Cache repeated AI responses where practical.
+
+---
+
+# 39. DEPLOYMENT
+
+Make frontend Vercel-ready.
+
+Make backend Render-ready.
+
+Backend must use:
+
+```js
+process.env.PORT || 5000
+```
+
+Create:
+
+```text
+GET /api/health
+```
+
+CORS must use the configured frontend URL.
+
+Frontend must use:
+
+```env
+VITE_API_BASE_URL
+```
+
+Never hardcode production URLs.
+
+---
+
+# 40. DOCUMENTATION
+
+Create:
+
+## README.md
+
+Include:
+
+* Problem
+* Solution
+* Features
+* User Flow
+* AI Integration
+* Architecture
+* Tech Stack
+* Database
+* API
+* Security
+* Setup
+* Environment Variables
+* Deployment
+* Demo Flow
+
+## ARCHITECTURE.md
+
+Include:
+
+* frontend architecture
+* backend architecture
+* database architecture
+* authentication flow
+* AI flow
+* document flow
+* deployment architecture
+* security architecture
+
+## AI_INTEGRATION.md
+
+Explain:
+
+* eligibility explanation
+* NestGuide
+* document analysis
+* scholarship summary
+* structured output
+* Zod validation
+* backend-only Gemini
+* why deterministic matching is used
+
+## DEPLOYMENT_GUIDE.md
+
+Include:
+
+* Supabase setup
+* Replit environment variables
+* local development
+* backend deployment
+* frontend deployment
+* CORS
+* production environment variables
+* testing checklist
+
+---
+
+# 41. GITIGNORE
+
+Include:
+
+```text
+node_modules/
+.env
+.env.*
+!.env.example
+dist/
+build/
+.DS_Store
+```
+
+Never commit secrets.
+
+---
+
+# 42. DEVELOPMENT STRATEGY
+
+Build the project in this order.
+
+### PHASE 1 — FOUNDATION
+
+Implement:
+
+* project structure
+* frontend
+* backend
+* Supabase connection
+* database schema
+* authentication
+* bcrypt
+* JWT
+* protected routes
+* health API
+
+### PHASE 2 — CORE E6
+
+Implement:
+
+* student profile
+* scholarship database
+* scholarship CRUD
+* seed data
+* search
+* filters
+* eligibility engine
+* match score
+* recommendations
+* scholarship details
+
+### PHASE 3 — STUDENT WORKFLOW
+
+Implement:
+
+* saved scholarships
+* applications
+* application tracker
+* documents
+* document checklist
+* deadlines
+* dashboard
+
+### PHASE 4 — AI
+
+Implement:
+
+* Gemini backend integration
+* structured output
+* Zod validation
+* Why am I eligible?
+* NestGuide
+* scholarship summaries
+
+### PHASE 5 — ADVANCED
+
+Implement:
+
+* Supabase Storage
+* document AI
+* multilingual support
+* comparison
+* application roadmap
+* analytics
+
+### PHASE 6 — POLISH
+
+Implement:
+
+* responsive UI
+* accessibility
+* loading states
+* error states
+* empty states
+* security review
+* performance review
+
+### PHASE 7 — SHIP
+
+Prepare:
+
+* README
+* architecture documentation
+* AI documentation
+* deployment configuration
+* production testing
+* final demo flow
+
+---
+
+# 43. IMPORTANT REPLIT AGENT INSTRUCTIONS
+
+Before coding:
+
+1. Inspect the existing Replit project.
+2. Reuse working code.
+3. Check installed dependencies.
+4. Do not unnecessarily recreate the project.
+5. Do not delete working files.
+6. Connect to the existing Supabase project.
+7. Build incrementally.
+
+After each major phase:
+
+* run the frontend
+* run the backend
+* test API
+* test database
+* fix errors
+* verify existing features still work
+
+Do not leave broken code behind.
+
+If an implementation is uncertain, choose the simplest reliable approach.
+
+Do not repeatedly rewrite large portions of the application.
+
+---
+
+# 44. FINAL QUALITY CHECK
+
+Before saying the project is complete, verify:
+
+### AUTH
+
+* Register works
+* Login works
+* Logout works
+* bcrypt works
+* JWT works
+* Protected routes work
+
+### DATABASE
+
+* Supabase connection works
+* Data persists
+* CRUD works
+* User isolation works
+
+### SCHOLARSHIPS
+
+* Search works
+* Filters work
+* Sorting works
+* Eligibility works
+* Match score works
+* Recommendations work
+
+### AI
+
+* Gemini backend-only
+* API key secure
+* Structured JSON
+* Zod validation
+* Errors handled
+* AI calls minimized
+
+### DOCUMENTS
+
+* Upload works
+* Storage works
+* Checklist works
+* AI analysis handles errors
+
+### APPLICATIONS
+
+* Create
+* Read
+* Update
+* Delete
+* Status tracking
+
+### DASHBOARD
+
+* Real database statistics
+* Profile completion
+* Matches
+* Saved
+* Applications
+* Deadlines
+* Documents
+
+### SECURITY
+
+* No secrets in source
+* No service-role key in frontend
+* No Gemini key in frontend
+* Passwords hashed
+* Protected routes
+* Authorization
+* Input validation
+
+### DEPLOYMENT
+
+* Frontend Vercel-ready
+* Backend Render-ready
+* Environment variables documented
+* CORS configured
+* Health endpoint works
+
+---
+
+# 45. CORE PRODUCT PRINCIPLE
+
+ScholarNest must answer four questions:
+
+### What scholarships can I apply for?
+
+→ Personalized discovery
+
+### Why am I eligible?
+
+→ Match score + transparent explanation
+
+### What do I need?
+
+→ Document checklist + readiness
+
+### What should I do next?
+
+→ Roadmap + deadline + application tracker
+
+This is the heart of ScholarNest.
+
+Do not turn the project into a generic AI chatbot.
+
+The **scholarship discovery → matching → explanation → documents → application → tracking** journey must be the strongest part of the product.
+
+---
+
+# 46. START BUILDING
+
+Start immediately.
+
+First inspect the existing Replit project and then implement the complete ScholarNest system according to this specification.
+
+Do not ask unnecessary questions when a reasonable technical decision can be made.
+
+Use the existing Supabase project.
+
+Use environment variables for all credentials.
+
+Build actual working functionality rather than mock screens.
+
+Prioritize correctness, security, database persistence, AI integration, and the complete E6 workflow.
+
+At the end, provide a concise report containing:
+
+1. What was built
+2. Files created/modified
+3. Dependencies installed
+4. Database tables created
+5. API routes created
+6. Environment variables required
+7. Features successfully tested
+8. Remaining issues, if any
+9. Exact steps needed to run the project
+10. Deployment readiness status
+
+**BEGIN NOW.**
